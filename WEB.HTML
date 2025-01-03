@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Blog</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to right, #0f0c29, #302b63, #24243e);
+            color: #00ffc6;
+            display: flex;
+            overflow: hidden;
+        }
+        .sidebar {
+            width: 200px;
+            background: #1b1b2f;
+            color: #00ffc6;
+            padding: 20px;
+            position: fixed;
+            height: 100%;
+            border-right: 2px solid #00ffc6;
+            box-shadow: 0px 0px 10px rgba(0, 255, 198, 0.8);
+        }
+        .sidebar a {
+            display: block;
+            color: #00ffc6;
+            text-decoration: none;
+            margin: 10px 0;
+            transition: 0.3s;
+        }
+        .sidebar a:hover {
+            color: #1b1b2f;
+            background-color: #00ffc6;
+            padding-left: 10px;
+            border-radius: 5px;
+        }
+        .main-content {
+            margin-left: 220px;
+            padding: 20px;
+            flex-grow: 1;
+            color: #ffffff;
+        }
+        .hidden {
+            display: none;
+        }
+        .login {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+        }
+        .login input {
+            margin: 5px;
+            padding: 10px;
+            background: #1b1b2f;
+            color: #00ffc6;
+            border: 2px solid #00ffc6;
+            border-radius: 5px;
+        }
+        .login button {
+            padding: 10px 20px;
+            background: #00ffc6;
+            color: #1b1b2f;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .login button:hover {
+            background: #1b1b2f;
+            color: #00ffc6;
+            border: 2px solid #00ffc6;
+        }
+        .error {
+            color: #ff4b5c;
+        }
+        #gallery img {
+            max-width: 100px;
+            margin: 5px;
+            border: 2px solid #00ffc6;
+            border-radius: 10px;
+            transition: 0.3s;
+        }
+        #gallery img:hover {
+            transform: scale(1.2);
+            box-shadow: 0px 0px 10px rgba(0, 255, 198, 0.8);
+        }
+        textarea, input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border: 2px solid #00ffc6;
+            background: #1b1b2f;
+            color: #00ffc6;
+        }
+        button {
+            padding: 10px 20px;
+            margin-top: 10px;
+            background: #00ffc6;
+            color: #1b1b2f;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            background: #1b1b2f;
+            color: #00ffc6;
+            border: 2px solid #00ffc6;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login" id="login">
+    <h1>Enter Password</h1>
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="checkPassword()">Login</button>
+    <p class="error hidden" id="error">Incorrect Password!</p>
+</div>
+
+<div id="content" class="hidden">
+    <div class="sidebar">
+        <h2>Menu</h2>
+        <a href="#home" onclick="showSection('home')">Home</a>
+        <a href="#gallery" onclick="showSection('gallery')">Gallery</a>
+        <a href="#diary" onclick="showSection('diary')">Diary</a>
+        <a href="#birthdays" onclick="showSection('birthdays')">Birthday Dates</a>
+        <a href="#about" onclick="showSection('about')">About</a>
+    </div>
+    <div class="main-content">
+        <header>
+            <h1>Welcome to My Blog</h1>
+        </header>
+        <div class="container" id="home">
+            <h2>Home</h2>
+            <h3>About Me:</h3>
+            <p id="aboutContent">No information added yet.</p>
+            <h3>Gallery:</h3>
+            <div id="galleryPreview"></div>
+        </div>
+        <div class="container hidden" id="gallery">
+            <h2>Gallery</h2>
+            <input type="file" id="imageUpload" accept="image/*">
+            <button onclick="addPhoto()">Add Photo</button>
+            <div id="galleryContent"></div>
+        </div>
+        <div class="container hidden" id="diary">
+            <h2>Diary</h2>
+            <label for="diaryDate">Select Date:</label>
+            <input type="date" id="diaryDate"><br><br>
+            <textarea id="diaryEntry" placeholder="Write your diary entry here..." rows="5"></textarea><br>
+            <button onclick="saveDiary()">Save Entry</button>
+            <h3>Search Diary:</h3>
+            <input type="date" id="searchDate">
+            <button onclick="searchDiary()">Search</button>
+            <p id="searchResult"></p>
+        </div>
+        <div class="container hidden" id="birthdays">
+            <h2>Birthday Dates</h2>
+            <input type="text" id="name" placeholder="Name">
+            <input type="date" id="date">
+            <button onclick="addBirthday()">Add</button>
+            <ul id="birthdayList"></ul>
+        </div>
+        <div class="container hidden" id="about">
+            <h2>About</h2>
+            <textarea id="aboutInput" placeholder="Write about yourself..." rows="5"></textarea><br>
+            <button onclick="saveAbout()">Save</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const PASSWORD = "prasannablog2007"; // Change this password as needed
+
+    const diaryEntries = {};
+
+    function checkPassword() {
+        const input = document.getElementById('password').value;
+        if (input === PASSWORD) {
+            document.getElementById('login').classList.add('hidden');
+            document.getElementById('content').classList.remove('hidden');
+        } else {
+            document.getElementById('error').classList.remove('hidden');
+        }
+    }
+
+    function showSection(sectionId) {
+        document.querySelectorAll('.container').forEach(section => {
+            section.classList.add('hidden');
+        });
+        document.getElementById(sectionId).classList.remove('hidden');
+
+        if (sectionId === 'home') {
+            updateHomePage();
+        }
+    }
+
+    function saveDiary() {
+        const date = document.getElementById('diaryDate').value;
+        const entry = document.getElementById('diaryEntry').value;
+
+        if (date && entry) {
+            diaryEntries[date] = entry;
+            alert(`Diary entry saved for ${date}.`);
+            document.getElementById('diaryEntry').value = ""; // Clear textarea
+        } else {
+            alert("Please select a date and write an entry.");
+        }
+    }
+
+    function searchDiary() {
+        const searchDate = document.getElementById('searchDate').value;
+        const result = diaryEntries[searchDate];
+
+        if (result) {
+            document.getElementById('searchResult').innerText = `Diary Entry for ${searchDate}: ${result}`;
+        } else {
+            document.getElementById('searchResult').innerText = `No diary entry found for ${searchDate}.`;
+        }
+    }
+
+    function addBirthday() {
+        const name = document.getElementById('name').value;
+        const date = document.getElementById('date').value;
+        if (name && date) {
+            const list = document.getElementById('birthdayList');
+            const listItem = document.createElement('li');
+            listItem.textContent = `${name} - ${date}`;
+            list.appendChild(listItem);
+        }
+    }
+
+    function addPhoto() {
+        const fileInput = document.getElementById('imageUpload');
+        const files = fileInput.files;
+
+        if (files.length > 0) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                document.getElementById('galleryContent').appendChild(img);
+
+                const previewImg = img.cloneNode();
+                document.getElementById('galleryPreview').appendChild(previewImg);
+            };
+            reader.readAsDataURL(files[0]);
+        }
+    }
+
+    function saveAbout() {
+        const aboutText = document.getElementById('aboutInput').value;
+        document.getElementById('aboutContent').innerText = aboutText;
+    }
+
+    function updateHomePage() {
+        document.getElementById('galleryPreview').innerHTML = document.getElementById('galleryContent').innerHTML;
+        document.getElementById('aboutContent').innerText = document.getElementById('aboutInput').value || "No information added yet.";
+    }
+</script>
+
+</body>
+</html>
